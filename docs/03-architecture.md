@@ -327,7 +327,7 @@ POST" case for this.
 |---|---|---|
 | PHP | 8.x bundled with current XAMPP | `password_hash()` defaults are safe on 8.x. |
 | MySQL/MariaDB | Bundled; InnoDB engine | `utf8mb4` charset + `_ci` collation throughout. |
-| Time zone | Single configured zone, e.g. `Africa/Lagos` `[TODO-STUDENT: confirm]` | Set in PHP (`date_default_timezone_set`) **and** MySQL session (`time_zone`) so deadlines compare correctly. |
+| Time zone | Single configured zone: `Africa/Lagos` (confirmed 2026-10-12) | Set in PHP (`date_default_timezone_set`) **and** MySQL session (`time_zone`) so deadlines compare correctly. |
 | Web root | `C:\xampp\htdocs\elderly-welfare-system\` (Win) or `/opt/lampp/htdocs/…` | Never place `config/database.php` secrets in git — use `database.example.php` template (Stage 2). |
 | Scheduler | Task Scheduler (Win) / cron (Linux/macOS) | Same PHP binary as XAMPP to avoid version mismatch. |
 

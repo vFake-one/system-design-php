@@ -3,7 +3,7 @@
 > **Stage 1 deliverable 4 of 6.** The complete *logical* design that Stage 2
 > will implement as `database/elderly_welfare.sql`.
 > Engine: **InnoDB**. Charset: **utf8mb4**. Collation: **utf8mb4_unicode_ci**.
-> Time zone: single configured local zone — `[TODO-STUDENT: confirm, e.g. Africa/Lagos]`.
+> Time zone: **`Africa/Lagos`** (confirmed 2026-10-12).
 
 ---
 
@@ -291,7 +291,7 @@ Seed rows (defaults — admin can change):
 | `monitor_window_days` | `30` | How far back the risk engine looks. |
 | `urgent_threshold` | `60` | Score ≥ this → Urgent review. |
 | `attention_threshold` | `30` | Score ≥ this → Attention required. |
-| `app_timezone_label` | `[TODO-STUDENT]` | Display label, e.g. `Africa/Lagos`. |
+| `app_timezone_label` | `Africa/Lagos` | Display label (confirmed 2026-10-12). |
 
 ---
 

@@ -64,28 +64,20 @@ exist as placeholders so the agreed structure is visible in the repo.
 
 ---
 
-## 3. Questions for you (the student) — reply before Stage 2
+## 3. Questions for you (the student) — ✅ ANSWERED 2026-10-12
 
-Please confirm or answer:
+| # | Question | Confirmed answer |
+|---|---|---|
+| 1 | Time zone | **`Africa/Lagos`** — Stage 2 will configure PHP + MySQL session zone to this. |
+| 2 | Grace / escalation defaults | **120 min grace / 240 min escalation** (seed defaults; admin-tunable). |
+| 3 | Role naming | `elderly` covering elderly + family (no objection raised — locked as D-1). |
+| 4 | ML extension | **PHP rule engine only** — optional Python extension stays design-only. |
+| 5 | Scheduler | **Real cron / Task Scheduler** + manual button (both paths built and tested). |
+| 6 | Citation style + emergency number + data-protection rules | ⏳ Still `[TODO-STUDENT]` — provide when known; does not block Stage 2. |
 
-1. **Time zone:** which `app_timezone_label` should be configured
-   (e.g., `Africa/Lagos`)? This affects every deadline comparison.
-2. **Grace / escalation defaults:** are 120 min grace and 240 min escalation
-   acceptable defaults for your demo, or does your supervisor prefer
-   shorter values (e.g., 60/120) so escalation can be shown in one lab session?
-3. **Role naming:** is `elderly` (covering elderly + family) acceptable, or
-   does your institution require a separate `family` role value?
-4. **ML extension:** does your supervisor expect the optional Python
-   component, or is the PHP rule engine sufficient?
-5. **Cron vs. manual:** will your demo environment allow a real cron/Task
-   Scheduler entry, or should the manual "Run monitoring now" button be the
-   primary demo path?
-6. **Citation style + emergency number + data-protection rules** (see
-   `01-proposal-scope.md` §9) — provide these when you have them; they do
-   not block Stage 2.
-
-You can answer with: *"Approved — proceed to Stage 2. Timezone = X,
-grace/escalation = Y/Z, role naming = …, ML = yes/no, scheduler = …"*
+Original prompt (kept for report traceability): *"Approved — proceed to
+Stage 2. Timezone = X, grace/escalation = Y/Z, role naming = …, ML = yes/no,
+scheduler = …"* — still awaiting your explicit Stage 2 approval (see §6).
 
 ---
 
@@ -117,3 +109,13 @@ recorded decision.
 - No test results, interviews, or references have been invented in Stage 1.
   Keep it that way: Stage 9 provides empty Actual/Status columns for you to
   complete by running the tests yourself.
+
+## 6. Stage gate — awaiting your approval ⏳
+
+Stage 1 is **complete and pushed**. To open Stage 2, reply exactly:
+
+> **"Approved — proceed to Stage 2"**
+
+On approval, Stage 2 will generate: XAMPP setup guide,
+`database/elderly_welfare.sql` (full script + synthetic seed + demo accounts),
+`config/database.php` (+ `.example` template), and the connection test.
