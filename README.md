@@ -66,7 +66,8 @@ used as the main backend or database.
 ```text
 elderly-welfare-system/
 ├── config/
-│   └── database.php          # PDO connection (Stage 2). Credentials kept out of git.
+│   ├── database.php          # PDO connection ✅ Stage 2 (XAMPP defaults; see .example template)
+│   └── database.example.php  # Safe template copy
 ├── includes/
 │   ├── auth.php              # Session + role checks (Stage 3)
 │   ├── functions.php         # Shared helpers, escaping, settings
@@ -111,8 +112,8 @@ elderly-welfare-system/
 
 | Stage | Focus | Status |
 |---|---|---|
-| **Stage 1** | Requirements & design (proposal, scope, requirements, architecture, DB design, ERD, use-case, monitoring rules) | ✅ **This stage — in progress** |
-| Stage 2 | Environment & database (XAMPP, `elderly_welfare.sql`, PDO connection) | ⏳ Next |
+| **Stage 1** | Requirements & design (proposal, scope, requirements, architecture, DB design, ERD, use-case, monitoring rules) | ✅ Done |
+| **Stage 2** | Environment & database (XAMPP, `elderly_welfare.sql`, PDO connection) | ✅ Done — verify on your XAMPP (see `docs/07`) |
 | Stage 3 | Authentication & roles (login/logout, hashing, RBAC) | ⏳ |
 | Stage 4 | Household & caregiver management | ⏳ |
 | Stage 5 | Check-in management | ⏳ |
@@ -138,6 +139,7 @@ All Stage 1 documents live in `docs/`:
 | `docs/04-database-design.md` | Normalized table design, keys, constraints, indexes, relationships, ERD (Mermaid) |
 | `docs/05-monitoring-and-risk-rules.md` | How missed-check-in detection and the explainable risk engine work, with worked examples |
 | `docs/06-stage1-checklist.md` | What is done / assumed / left for you to verify, and how to approve Stage 2 |
+| `docs/07-stage2-environment-and-database.md` | **Stage 2 guide:** XAMPP install, SQL import, connection config, `test_db.php` test, troubleshooting |
 
 Start with `docs/01-proposal-scope.md` and read in order.
 
@@ -210,12 +212,12 @@ consistent across stages.
 
 ## 10. How to proceed
 
-1. Read the six Stage 1 docs in `docs/` in order.
-2. Check `docs/06-stage1-checklist.md` for decisions you need to confirm
-   (time zone, grace/escalation defaults, role naming).
-3. Reply **"Approved — proceed to Stage 2"** (or ask for changes).
-4. Only then will Stage 2 (XAMPP setup + `elderly_welfare.sql` + PDO
-   connection) be generated.
+1. Read `docs/07-stage2-environment-and-database.md` and follow parts A → D
+   on your machine (install XAMPP → import SQL → green `test_db.php`).
+2. Screenshot the green result for your report appendix, then **delete
+   `test_db.php`** (or rename it non-executable).
+3. Reply **"Approved — proceed to Stage 3"** (or report any red row for help).
+4. Only then will Stage 3 (login/logout, sessions, role-based access) be built.
 
 ---
 
