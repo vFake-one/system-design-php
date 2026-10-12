@@ -76,12 +76,16 @@ elderly-welfare-system/
 │   └── footer.php            # Shared layout bottom ✅ Stage 3
 ├── admin/                    # Admin-only pages (role = admin)
 │   ├── dashboard.php         # Placeholder ✅ Stage 3 (full: Stage 8)
-│   ├── elderly.php           # Registration + list + edit
-│   ├── caregivers.php
-│   ├── assignments.php
-│   └── settings.php          # Grace / escalation defaults, schedules
+│   ├── elderly.php           # Household list ✅ Stage 4
+│   ├── elderly_form.php      # Register/edit household ✅ Stage 4
+│   ├── elderly_view.php      # Profile (shared w/ scoped caregivers) ✅ Stage 4
+│   ├── caregivers.php        # Account list + suspend/reset ✅ Stage 4
+│   ├── caregiver_form.php    # Create/edit account ✅ Stage 4
+│   ├── assignments.php       # Assign/unassign/primary ✅ Stage 4
+│   └── settings.php          # Grace / escalation defaults (Stage 6)
 ├── caregiver/                # Caregiver pages (role = caregiver)
 │   ├── dashboard.php         # Placeholder ✅ Stage 3 (full: Stages 5-6)
+│   ├── households.php        # My assigned households ✅ Stage 4
 │   ├── checkins.php
 │   ├── alerts.php
 │   ├── followups.php
@@ -115,7 +119,8 @@ elderly-welfare-system/
 |---|---|---|
 | **Stage 1** | Requirements & design (proposal, scope, requirements, architecture, DB design, ERD, use-case, monitoring rules) | ✅ Done |
 | **Stage 2** | Environment & database (XAMPP, `elderly_welfare.sql`, PDO connection) | ✅ Done |
-| **Stage 3** | Authentication & roles (login/logout, hashing, RBAC) | ✅ Done — run TC-3.01–3.20 on your XAMPP (see `docs/08`) |
+| **Stage 3** | Authentication & roles (login/logout, hashing, RBAC) | ✅ Done |
+| **Stage 4** | Household & caregiver management (profiles, accounts, assignments) | ✅ Done — run TC-4.01–4.21 on your XAMPP (see `docs/09`) |
 | Stage 3 | Authentication & roles (login/logout, hashing, RBAC) | ⏳ |
 | Stage 4 | Household & caregiver management | ⏳ |
 | Stage 5 | Check-in management | ⏳ |
@@ -143,6 +148,7 @@ All Stage 1 documents live in `docs/`:
 | `docs/06-stage1-checklist.md` | What is done / assumed / left for you to verify, and how to approve Stage 2 |
 | `docs/07-stage2-environment-and-database.md` | **Stage 2 guide:** XAMPP install, SQL import, connection config, `test_db.php` test, troubleshooting |
 | `docs/08-stage3-authentication-and-roles.md` | **Stage 3 guide:** sessions, hashing, RBAC, CSRF, test cases TC-3.01–3.20, viva Q&A |
+| `docs/09-stage4-household-and-caregiver-management.md` | **Stage 4 guide:** profiles, accounts, assignments, test cases TC-4.01–4.21 |
 
 Start with `docs/01-proposal-scope.md` and read in order.
 
@@ -214,13 +220,11 @@ accounts — remove that box before any real deployment or final submission.
 
 ## 10. How to proceed
 
-1. On your XAMPP, open `http://localhost/elderly-welfare-system/` and log in
-   as each demo account (see §7) — each role must land on its own home page.
-2. Work through test cases **TC-3.01–TC-3.20** in
-   `docs/08-stage3-authentication-and-roles.md`, filling in Actual/Pass.
-3. Reply **"Approved — proceed to Stage 4"** (or paste any failure for help).
-4. Only then will Stage 4 (elderly registration, caregiver accounts,
-   assignments) be built.
+1. On your XAMPP, log in as admin and work through **TC-4.01–TC-4.21** in
+   `docs/09-stage4-household-and-caregiver-management.md`, filling Actual/Pass.
+2. Run the cleanup SQL at the end of §B so later demos start from clean seed.
+3. Reply **"Approved — proceed to Stage 5"** (or paste any failure for help).
+4. Only then will Stage 5 (schedules, check-in submission, history) be built.
 
 ---
 
