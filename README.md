@@ -69,26 +69,26 @@ elderly-welfare-system/
 │   ├── database.php          # PDO connection ✅ Stage 2 (XAMPP defaults; see .example template)
 │   └── database.example.php  # Safe template copy
 ├── includes/
-│   ├── auth.php              # Session + role checks (Stage 3)
-│   ├── functions.php         # Shared helpers, escaping, settings
-│   ├── csrf.php              # CSRF token generation/validation
-│   ├── header.php            # Shared layout top + nav
-│   └── footer.php            # Shared layout bottom
+│   ├── auth.php              # Session + role checks ✅ Stage 3
+│   ├── functions.php         # Escaper, redirect, flash, audit ✅ Stage 3
+│   ├── csrf.php              # CSRF tokens ✅ Stage 3
+│   ├── header.php            # Shared layout top + nav ✅ Stage 3
+│   └── footer.php            # Shared layout bottom ✅ Stage 3
 ├── admin/                    # Admin-only pages (role = admin)
-│   ├── dashboard.php
+│   ├── dashboard.php         # Placeholder ✅ Stage 3 (full: Stage 8)
 │   ├── elderly.php           # Registration + list + edit
 │   ├── caregivers.php
 │   ├── assignments.php
 │   └── settings.php          # Grace / escalation defaults, schedules
 ├── caregiver/                # Caregiver pages (role = caregiver)
-│   ├── dashboard.php
+│   ├── dashboard.php         # Placeholder ✅ Stage 3 (full: Stages 5-6)
 │   ├── checkins.php
 │   ├── alerts.php
 │   ├── followups.php
 │   └── visits.php
 ├── elderly/                  # Simple large-text interface (role = elderly/family)
-│   ├── profile.php
-│   └── checkin.php
+│   ├── profile.php           # (Stage 5)
+│   └── checkin.php           # Placeholder ✅ Stage 3 (full: Stage 5)
 ├── ai/
 │   └── risk_engine.php       # Explainable rule engine (Stage 7)
 ├── cron/
@@ -96,15 +96,16 @@ elderly-welfare-system/
 ├── assets/
 │   ├── css/ js/ images/
 ├── database/
-│   └── elderly_welfare.sql   # Full MySQL script (Stage 2)
+│   └── elderly_welfare.sql   # Full MySQL script ✅ Stage 2
 ├── docs/                     # Stage-by-stage academic documentation
-├── index.php / login.php / logout.php
+├── index.php / login.php / logout.php   # ✅ Stage 3 (`test_db.php` removed after use)
 └── README.md
 ```
 
 > Any improvement to this structure will be explained when it is made.
-> `docs/` and `database/` additions in Stage 1 are design documents only —
-> no application code is claimed as complete yet.
+> Checkboxes (✅ Stage N) mark implemented files; unmarked files are planned
+> for their listed stage. Only Bootstrap's own files sit in `assets/` vendor
+> copies; everything else is project code.
 
 ---
 
@@ -113,7 +114,8 @@ elderly-welfare-system/
 | Stage | Focus | Status |
 |---|---|---|
 | **Stage 1** | Requirements & design (proposal, scope, requirements, architecture, DB design, ERD, use-case, monitoring rules) | ✅ Done |
-| **Stage 2** | Environment & database (XAMPP, `elderly_welfare.sql`, PDO connection) | ✅ Done — verify on your XAMPP (see `docs/07`) |
+| **Stage 2** | Environment & database (XAMPP, `elderly_welfare.sql`, PDO connection) | ✅ Done |
+| **Stage 3** | Authentication & roles (login/logout, hashing, RBAC) | ✅ Done — run TC-3.01–3.20 on your XAMPP (see `docs/08`) |
 | Stage 3 | Authentication & roles (login/logout, hashing, RBAC) | ⏳ |
 | Stage 4 | Household & caregiver management | ⏳ |
 | Stage 5 | Check-in management | ⏳ |
@@ -140,6 +142,7 @@ All Stage 1 documents live in `docs/`:
 | `docs/05-monitoring-and-risk-rules.md` | How missed-check-in detection and the explainable risk engine work, with worked examples |
 | `docs/06-stage1-checklist.md` | What is done / assumed / left for you to verify, and how to approve Stage 2 |
 | `docs/07-stage2-environment-and-database.md` | **Stage 2 guide:** XAMPP install, SQL import, connection config, `test_db.php` test, troubleshooting |
+| `docs/08-stage3-authentication-and-roles.md` | **Stage 3 guide:** sessions, hashing, RBAC, CSRF, test cases TC-3.01–3.20, viva Q&A |
 
 Start with `docs/01-proposal-scope.md` and read in order.
 
@@ -157,20 +160,19 @@ Full permission matrix: `docs/02-requirements.md`.
 
 ---
 
-## 7. Demo accounts (from Stage 3 onward — not active yet)
+## 7. Demo accounts (local testing only — change these passwords)
 
-> Sample accounts will be created in Stage 2/3 **for local testing only**
-> with clearly synthetic data. You must change their passwords before any
-> real use. Never commit real passwords or contact details.
-
-Planned local-only accounts (to be created later):
+Seeded by `database/elderly_welfare.sql` — **log in with them from Stage 3**:
 
 - `admin@example.local` / `Admin123!` (administrator)
-- `caregiver@example.local` / `Care123!` (caregiver)
-- `elderly@example.local` / `Elder123!` (elderly/family)
+- `ruth.caregiver@example.local` / `Care123!` (caregiver)
+- `david.caregiver@example.local` / `Care123!` (caregiver)
+- `mary.elderly@example.local` / `Elder123!` (elderly/family)
+- `peter.family@example.local` / `Elder123!` (elderly/family)
 
-These do **not** exist yet — they are documented here so the plan is
-consistent across stages.
+Passwords are stored as bcrypt hashes (cost 10). Never commit real passwords
+or contact details. The login page shows a reminder box with the first three
+accounts — remove that box before any real deployment or final submission.
 
 ---
 
@@ -212,12 +214,13 @@ consistent across stages.
 
 ## 10. How to proceed
 
-1. Read `docs/07-stage2-environment-and-database.md` and follow parts A → D
-   on your machine (install XAMPP → import SQL → green `test_db.php`).
-2. Screenshot the green result for your report appendix, then **delete
-   `test_db.php`** (or rename it non-executable).
-3. Reply **"Approved — proceed to Stage 3"** (or report any red row for help).
-4. Only then will Stage 3 (login/logout, sessions, role-based access) be built.
+1. On your XAMPP, open `http://localhost/elderly-welfare-system/` and log in
+   as each demo account (see §7) — each role must land on its own home page.
+2. Work through test cases **TC-3.01–TC-3.20** in
+   `docs/08-stage3-authentication-and-roles.md`, filling in Actual/Pass.
+3. Reply **"Approved — proceed to Stage 4"** (or paste any failure for help).
+4. Only then will Stage 4 (elderly registration, caregiver accounts,
+   assignments) be built.
 
 ---
 
