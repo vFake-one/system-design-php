@@ -90,13 +90,14 @@ elderly-welfare-system/
 │   ├── households.php        # My assigned households ✅ Stage 4
 │   ├── checkins.php          # Due/overdue/ad-hoc/history workspace ✅ Stage 5
 │   ├── alerts.php            # Alert worklist (shared w/ admin) ✅ Stage 6
+│   ├── review.php            # Prioritized review queue (shared) ✅ Stage 7
 │   ├── followups.php         # Follow-up action log ✅ Stage 6
 │   └── visits.php            # Visit log ✅ Stage 6
 ├── elderly/                  # Simple large-text interface (role = elderly/family)
 │   ├── profile.php           # Own summary + schedules + history ✅ Stage 5
 │   └── checkin.php           # Big-button self check-in + help ✅ Stage 5
 ├── ai/
-│   └── risk_engine.php       # Triage v0 ✅ Stage 6 (full engine: Stage 7)
+│   └── risk_engine.php       # Full 8-input engine v1 ✅ Stage 7
 ├── cron/
 │   └── monitor_checkins.php  # 3-pass engine (CLI + manual) ✅ Stage 6
 ├── assets/
@@ -124,7 +125,8 @@ elderly-welfare-system/
 | **Stage 3** | Authentication & roles (login/logout, hashing, RBAC) | ✅ Done |
 | **Stage 4** | Household & caregiver management (profiles, accounts, assignments) | ✅ Done |
 | **Stage 5** | Check-in management (schedules, submissions, history, overdue) | ✅ Done |
-| **Stage 6** | Alerts & escalation (monitor, acknowledge, visits, follow-ups) | ✅ Done — run TC-6.01–6.20 on your XAMPP (see `docs/11`) |
+| **Stage 6** | Alerts & escalation (monitor, acknowledge, visits, follow-ups) | ✅ Done |
+| **Stage 7** | AI-assisted monitoring (full rule engine, review queue) | ✅ Done — run TC-7.01–7.12 on your XAMPP (see `docs/12`) |
 | Stage 3 | Authentication & roles (login/logout, hashing, RBAC) | ⏳ |
 | Stage 4 | Household & caregiver management | ⏳ |
 | Stage 5 | Check-in management | ⏳ |
@@ -155,6 +157,7 @@ All Stage 1 documents live in `docs/`:
 | `docs/09-stage4-household-and-caregiver-management.md` | **Stage 4 guide:** profiles, accounts, assignments, test cases TC-4.01–4.21 |
 | `docs/10-stage5-checkin-management.md` | **Stage 5 guide:** schedules, submissions, history, overdue, test cases TC-5.01–5.17 |
 | `docs/11-stage6-alerts-and-escalation.md` | **Stage 6 guide:** monitor, cron setup, alert lifecycle, visits/follow-ups, TC-6.01–6.20 |
+| `docs/12-stage7-ai-assisted-monitoring.md` | **Stage 7 guide:** full engine, review queue, scenario fixtures, ML appendix, TC-7.01–7.12 |
 
 Start with `docs/01-proposal-scope.md` and read in order.
 
@@ -226,12 +229,13 @@ accounts — remove that box before any real deployment or final submission.
 
 ## 10. How to proceed
 
-1. On your XAMPP, work through **TC-6.01–TC-6.20** in
-   `docs/11-stage6-alerts-and-escalation.md`, including one real CLI run and
-   (if possible) a cron/Task Scheduler entry.
-2. Keep a screenshot of a `monitor_run` summary for your report appendix.
-3. Reply **"Approved — proceed to Stage 7"** (or paste any failure for help).
-4. Only then will Stage 7 (full risk engine + review queue) be built.
+1. On your XAMPP, work through **TC-7.01–TC-7.12** in
+   `docs/12-stage7-ai-assisted-monitoring.md` (fixtures → monitor → verify
+   15/50/100), then run the §C.5 cleanup.
+2. Keep a screenshot of the review queue + one alert's scoring evidence.
+3. Reply **"Approved — proceed to Stage 8"** (or paste any failure for help).
+4. Only then will Stage 8 (dashboards, Chart.js reports, audit viewer,
+   account page) be built.
 
 ---
 

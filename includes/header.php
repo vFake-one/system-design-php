@@ -45,6 +45,7 @@ $homeUrl    = $rootPrefix . ($user ? role_home($user['role']) : 'index.php');
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>admin/elderly.php">Households</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>admin/schedules.php">Schedules</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/alerts.php">Alerts</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/review.php">Review</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>admin/caregivers.php">Caregivers</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>admin/assignments.php">Assignments</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>admin/settings.php">Settings</a></li>
@@ -52,6 +53,7 @@ $homeUrl    = $rootPrefix . ($user ? role_home($user['role']) : 'index.php');
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/dashboard.php">Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/checkins.php">Check-ins</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/alerts.php">Alerts</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/review.php">Review</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/visits.php">Visits</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/followups.php">Follow-ups</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/households.php">My households</a></li>

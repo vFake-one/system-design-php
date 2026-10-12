@@ -345,10 +345,10 @@ function primary_caregiver_id(int $elderlyId): ?int
  * obey identical rules. Throws RuntimeException (user-safe) on any refusal.
  *
  * Steps: validate elderly + schedule link -> INSERT checkin_records ->
- * mark schedule 'completed' -> if wellbeing != 'ok', open an URGENT
- * assistance alert immediately (Stage 1 D-11: a cry for help is never Routine).
- * Full risk scoring of that alert arrives with the Stage 7 engine; the
- * stored score 60 is the documented R-7 floor, not a computed value.
+ * mark schedule 'completed' -> if wellbeing != 'ok', score with the FULL
+ * engine (help_flag=1 applies the R-7 floor) and open an URGENT
+ * assistance alert immediately (Stage 7 D-38: direct reports are always
+ * urgent; the score may exceed 60 when history is also bad).
  *
  * @return array{record_id:int, schedule_id:?int, alert_id:?int}
  */
@@ -434,22 +434,25 @@ function submit_checkin(
                 $caregiverId = primary_caregiver_id($elderlyId);
             }
             $label = $wellbeing === 'needs_assistance' ? 'requested assistance' : 'reported feeling unwell';
+            // Full-engine assessment with the R-7 floor (score >= 60 guaranteed);
+            // priority is FORCED urgent for direct reports (D-38), whatever the
+            // admin tuned the urgent threshold to.
+            $ass = risk_assess($elderlyId, 'assistance', ['help_flag' => 1]);
             $alert = db()->prepare(
-                "INSERT INTO alerts
+                'INSERT INTO alerts
                  (elderly_id, schedule_id, caregiver_id, alert_type, priority, risk_score,
                   title, message, reason, observations, status)
-                 VALUES (:e, :s, :c, 'assistance_request', 'urgent', 60,
-                         :title, :msg, :reason, :obs, 'open')"
+                 VALUES (:e, :s, :c, \'assistance_request\', \'urgent\', :score,
+                         :title, :msg, :reason, :obs, \'open\')'
             );
             $alert->execute([
                 'e' => $elderlyId, 's' => $scheduleId, 'c' => $caregiverId,
+                'score' => $ass['score'],
                 'title' => 'Assistance requested',
                 'msg' => "Household member {$label} via check-in #{$recordId}."
                        . ($notes ? ' Note: ' . trim($notes) : ''),
-                'reason' => 'Person ' . $label . ' (direct report; R-7 floor applied)',
-                'obs' => json_encode(['help_flag' => 1, 'wellbeing' => $wellbeing,
-                    'record_id' => $recordId, 'scored_at' => date('Y-m-d H:i:s'),
-                    'note' => 'Stage 5 direct report; full engine scoring in Stage 7']),
+                'reason' => $ass['reasons'] ? implode('; ', $ass['reasons']) : 'Direct report',
+                'obs' => json_encode($ass['observations'] + ['record_id' => $recordId]),
             ]);
             $alertId = (int) db()->lastInsertId();
             audit('alert_created', 'alerts', $alertId, 'assistance_request (urgent, direct report)');
@@ -467,3 +470,8 @@ function submit_checkin(
         "elderly={$elderlyId} schedule=" . ($scheduleId ?? 'ad-hoc') . " wellbeing={$wellbeing}");
     return ['record_id' => $recordId, 'schedule_id' => $scheduleId, 'alert_id' => $alertId];
 }
+
+// Stage 7: the risk engine lives in one file; loading it here makes
+// risk_assess() available to submit_checkin() and every page. require_once
+// keeps CLI (monitor), web, and review page loads safe against doubles.
+require_once __DIR__ . '/../ai/risk_engine.php';
