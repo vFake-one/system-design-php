@@ -53,6 +53,28 @@ $assignStmt = db()->prepare(
 $assignStmt->execute(['id' => $id]);
 $assignments = $assignStmt->fetchAll();
 
+/* Stage 5: schedules + submitted records (one timeline per household). */
+$schedStmt = db()->prepare(
+    'SELECT cs.*, u.full_name AS caregiver
+     FROM checkin_schedules cs
+     LEFT JOIN users u ON u.id = cs.caregiver_id
+     WHERE cs.elderly_id = :id
+     ORDER BY cs.expected_at DESC LIMIT 20'
+);
+$schedStmt->execute(['id' => $id]);
+$schedules = $schedStmt->fetchAll();
+
+$recStmt = db()->prepare(
+    'SELECT cr.*, cs.title AS schedule_title, u.full_name AS submitter
+     FROM checkin_records cr
+     LEFT JOIN checkin_schedules cs ON cs.id = cr.schedule_id
+     LEFT JOIN users u ON u.id = cr.submitted_by
+     WHERE cr.elderly_id = :id
+     ORDER BY cr.checkin_at DESC LIMIT 20'
+);
+$recStmt->execute(['id' => $id]);
+$records = $recStmt->fetchAll();
+
 $isAdmin = $user['role'] === 'admin';
 $age = age_of($profile['date_of_birth']);
 $statusBadge = ['active' => 'success', 'inactive' => 'secondary', 'archived' => 'dark'];
@@ -117,6 +139,47 @@ require_once __DIR__ . '/../includes/header.php';
         </div></div>
     </div>
 </div>
+
+<h2 class="h4 mt-4">Check-in schedules (latest 20)</h2>
+<?php if (!$schedules): ?>
+    <p class="text-muted">No schedules yet.
+    <?php if ($isAdmin): ?><a href="schedule_form.php?elderly_id=<?= $id ?>">Create one</a>.<?php endif; ?></p>
+<?php else: ?>
+<div class="table-responsive"><table class="table table-sm table-striped align-middle">
+    <thead><tr><th>Expected</th><th>Title</th><th>Deadline</th><th>Caregiver</th><th>Status</th></tr></thead>
+    <tbody>
+    <?php foreach ($schedules as $s): $ds = schedule_display_status($s); ?>
+        <tr>
+            <td><?= e($s['expected_at']) ?></td>
+            <td><?= e($s['title'] ?? '') ?></td>
+            <td><?= e(deadline_of($s)) ?></td>
+            <td><?= e($s['caregiver'] ?? '—') ?></td>
+            <td><span class="badge bg-<?= e(['scheduled' => 'primary', 'overdue' => 'danger', 'completed' => 'success', 'missed' => 'warning', 'cancelled' => 'secondary'][$ds] ?? 'secondary') ?>"><?= e($ds) ?></span></td>
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+</table></div>
+<?php endif; ?>
+
+<h2 class="h4 mt-4">Submitted check-ins (latest 20)</h2>
+<?php if (!$records): ?>
+    <p class="text-muted">Nothing submitted yet.</p>
+<?php else: ?>
+<div class="table-responsive"><table class="table table-sm table-striped align-middle">
+    <thead><tr><th>When</th><th>Schedule</th><th>Submitted by</th><th>Via</th><th>Wellbeing</th></tr></thead>
+    <tbody>
+    <?php foreach ($records as $r): ?>
+        <tr>
+            <td><?= e($r['checkin_at']) ?></td>
+            <td><?= e($r['schedule_title'] ?? '— ad-hoc —') ?></td>
+            <td><?= e($r['submitter'] ?? '?') ?> <small class="text-muted">(<?= e($r['submitted_by_role'] ?? '') ?>)</small></td>
+            <td><?= e($r['method']) ?></td>
+            <td><span class="badge bg-<?= e(['ok' => 'success', 'needs_assistance' => 'warning', 'unwell' => 'danger'][$r['wellbeing_status']] ?? 'secondary') ?>"><?= e($r['wellbeing_status']) ?></span></td>
+        </tr>
+    <?php endforeach; ?>
+    </tbody>
+</table></div>
+<?php endif; ?>
 
 <p class="mt-3"><a href="<?= $isAdmin ? 'elderly.php' : '../caregiver/households.php' ?>">&larr; Back to list</a></p>
 <?php require_once __DIR__ . '/../includes/footer.php'; ?>

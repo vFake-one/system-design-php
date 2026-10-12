@@ -43,13 +43,16 @@ $homeUrl    = $rootPrefix . ($user ? role_home($user['role']) : 'index.php');
                 <?php if ($user && $user['role'] === 'admin'): ?>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>admin/dashboard.php">Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>admin/elderly.php">Households</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>admin/schedules.php">Schedules</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>admin/caregivers.php">Caregivers</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>admin/assignments.php">Assignments</a></li>
                 <?php elseif ($user && $user['role'] === 'caregiver'): ?>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/dashboard.php">Dashboard</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/checkins.php">Check-ins</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/households.php">My households</a></li>
                 <?php elseif ($user): ?>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>elderly/checkin.php">My check-ins</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>elderly/profile.php">My profile</a></li>
                 <?php endif; ?>
                 <?php /* Alerts, reports, ... links are added in later stages. */ ?>
             </ul>

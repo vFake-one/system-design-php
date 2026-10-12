@@ -270,3 +270,200 @@ function pager_links(string $base, array $params, int $page, int $pages): string
     $html .= $link(min($pages, $page + 1), 'Next »', disabled: $page >= $pages);
     return $html . '</ul></nav>';
 }
+
+/* =====================================================================
+ * STAGE 5 HELPERS - schedules, overdue derivation, check-in submission.
+ * Overdue is DERIVED (Stage 1 D-3): status='scheduled' AND deadline passed.
+ * =================================================================== */
+
+/** Read one system_settings value (falls back when missing). */
+function setting(string $key, string $default = ''): string
+{
+    $stmt = db()->prepare('SELECT setting_value FROM system_settings WHERE setting_key = :k');
+    $stmt->execute(['k' => $key]);
+    $val = $stmt->fetchColumn();
+    return $val === false ? $default : (string) $val;
+}
+
+/** Deadline of a schedule row: expected_at + grace_minutes (Y-m-d H:i:s). */
+function deadline_of(array $sched): string
+{
+    $dt = new DateTime($sched['expected_at']);
+    $dt->modify('+' . max(0, (int) $sched['grace_minutes']) . ' minutes');
+    return $dt->format('Y-m-d H:i:s');
+}
+
+/** True when a 'scheduled' row's deadline has passed (optionally vs a fixed $now for tests). */
+function is_overdue(array $sched, ?string $now = null): bool
+{
+    if (($sched['status'] ?? '') !== 'scheduled') {
+        return false;
+    }
+    return deadline_of($sched) < ($now ?? date('Y-m-d H:i:s'));
+}
+
+/** Display status: real status, except scheduled+past-deadline shows 'overdue'. */
+function schedule_display_status(array $sched, ?string $now = null): string
+{
+    return is_overdue($sched, $now) ? 'overdue' : (string) ($sched['status'] ?? '');
+}
+
+/**
+ * find_open_schedule() - the schedule a new self-submission should attach to:
+ * earliest 'scheduled' row whose acceptance window has OPENED
+ * (expected_at - 2h <= now, mirroring the Stage 1 D-10 monitor window).
+ * Returns null when nothing is due -> caller records an AD-HOC check-in.
+ */
+function find_open_schedule(int $elderlyId): ?array
+{
+    $stmt = db()->prepare(
+        "SELECT * FROM checkin_schedules
+         WHERE elderly_id = :e AND status = 'scheduled'
+           AND expected_at <= DATE_ADD(NOW(), INTERVAL 2 HOUR)
+         ORDER BY expected_at ASC LIMIT 1"
+    );
+    $stmt->execute(['e' => $elderlyId]);
+    $row = $stmt->fetch();
+    return $row ?: null;
+}
+
+/** Active PRIMARY caregiver id for a household (null when none). */
+function primary_caregiver_id(int $elderlyId): ?int
+{
+    $stmt = db()->prepare(
+        "SELECT caregiver_id FROM caregiver_assignments
+         WHERE elderly_id = :e AND status = 'active' AND is_primary = 1 LIMIT 1"
+    );
+    $stmt->execute(['e' => $elderlyId]);
+    $id = $stmt->fetchColumn();
+    return $id === false ? null : (int) $id;
+}
+
+/**
+ * submit_checkin() - THE shared writer for every check-in (Stage 5).
+ * Used by caregiver/checkins.php AND elderly/checkin.php so both paths
+ * obey identical rules. Throws RuntimeException (user-safe) on any refusal.
+ *
+ * Steps: validate elderly + schedule link -> INSERT checkin_records ->
+ * mark schedule 'completed' -> if wellbeing != 'ok', open an URGENT
+ * assistance alert immediately (Stage 1 D-11: a cry for help is never Routine).
+ * Full risk scoring of that alert arrives with the Stage 7 engine; the
+ * stored score 60 is the documented R-7 floor, not a computed value.
+ *
+ * @return array{record_id:int, schedule_id:?int, alert_id:?int}
+ */
+function submit_checkin(
+    int $elderlyId,
+    ?int $scheduleId,
+    int $submittedBy,
+    string $submittedByRole,
+    string $method,
+    string $wellbeing,
+    ?string $notes = null,
+    ?string $checkinAt = null
+): array {
+    $method    = trim($method);
+    $wellbeing = trim($wellbeing);
+    if (!in_array($method, ['self_online', 'caregiver_entry', 'phone_logged', 'visit_logged'], true)) {
+        throw new RuntimeException('Unknown check-in method.');
+    }
+    if (!in_array($wellbeing, ['ok', 'needs_assistance', 'unwell'], true)) {
+        throw new RuntimeException('Unknown wellbeing value.');
+    }
+    $when = $checkinAt ?? date('Y-m-d H:i:s');
+    $d = DateTime::createFromFormat('Y-m-d H:i:s', $when) ?: DateTime::createFromFormat('Y-m-d H:i', $when);
+    if (!$d) {
+        throw new RuntimeException('Invalid check-in time.');
+    }
+    $when = $d->format('Y-m-d H:i:s');
+
+    // Elderly must exist and be active (archived households take no check-ins).
+    $ep = db()->prepare("SELECT id FROM elderly_profiles WHERE id = :e AND status = 'active'");
+    $ep->execute(['e' => $elderlyId]);
+    if (!$ep->fetch()) {
+        throw new RuntimeException('This household is not active.');
+    }
+
+    // A linked schedule must belong to the household and still be open.
+    $sched = null;
+    if ($scheduleId !== null) {
+        $s = db()->prepare('SELECT * FROM checkin_schedules WHERE id = :s');
+        $s->execute(['s' => $scheduleId]);
+        $sched = $s->fetch();
+        if (!$sched || (int) $sched['elderly_id'] !== $elderlyId) {
+            throw new RuntimeException('That schedule does not belong to this household.');
+        }
+        if ($sched['status'] !== 'scheduled') {
+            throw new RuntimeException('That schedule is already ' . $sched['status'] . '.');
+        }
+    }
+
+    db()->beginTransaction();
+    try {
+        try {
+            $ins = db()->prepare(
+                'INSERT INTO checkin_records
+                 (schedule_id, elderly_id, submitted_by, submitted_by_role,
+                  checkin_at, method, wellbeing_status, notes)
+                 VALUES (:s, :e, :by, :role, :at, :m, :w, :n)'
+            );
+            $ins->execute([
+                's' => $scheduleId, 'e' => $elderlyId, 'by' => $submittedBy,
+                'role' => $submittedByRole, 'at' => $when, 'm' => $method,
+                'w' => $wellbeing, 'n' => ($notes !== null && trim($notes) !== '') ? trim($notes) : null,
+            ]);
+        } catch (PDOException $e) {
+            // 23000 = unique violation -> uq_checkin_schedule: already recorded.
+            if ($e->getCode() === '23000') {
+                throw new RuntimeException('A check-in was already recorded for that schedule.');
+            }
+            throw $e;
+        }
+        $recordId = (int) db()->lastInsertId();
+
+        if ($scheduleId !== null) {
+            db()->prepare("UPDATE checkin_schedules SET status = 'completed' WHERE id = :s")
+               ->execute(['s' => $scheduleId]);
+        }
+
+        $alertId = null;
+        if ($wellbeing !== 'ok') {
+            // Direct cry for help -> URGENT alert at once (never waits for cron).
+            $caregiverId = $sched['caregiver_id'] ?? null;
+            if ($caregiverId === null) {
+                $caregiverId = primary_caregiver_id($elderlyId);
+            }
+            $label = $wellbeing === 'needs_assistance' ? 'requested assistance' : 'reported feeling unwell';
+            $alert = db()->prepare(
+                "INSERT INTO alerts
+                 (elderly_id, schedule_id, caregiver_id, alert_type, priority, risk_score,
+                  title, message, reason, observations, status)
+                 VALUES (:e, :s, :c, 'assistance_request', 'urgent', 60,
+                         :title, :msg, :reason, :obs, 'open')"
+            );
+            $alert->execute([
+                'e' => $elderlyId, 's' => $scheduleId, 'c' => $caregiverId,
+                'title' => 'Assistance requested',
+                'msg' => "Household member {$label} via check-in #{$recordId}."
+                       . ($notes ? ' Note: ' . trim($notes) : ''),
+                'reason' => 'Person ' . $label . ' (direct report; R-7 floor applied)',
+                'obs' => json_encode(['help_flag' => 1, 'wellbeing' => $wellbeing,
+                    'record_id' => $recordId, 'scored_at' => date('Y-m-d H:i:s'),
+                    'note' => 'Stage 5 direct report; full engine scoring in Stage 7']),
+            ]);
+            $alertId = (int) db()->lastInsertId();
+            audit('alert_created', 'alerts', $alertId, 'assistance_request (urgent, direct report)');
+        }
+
+        db()->commit();
+    } catch (Throwable $e) {
+        if (db()->inTransaction()) {
+            db()->rollBack();
+        }
+        throw $e;
+    }
+
+    audit('submit_checkin', 'checkin_records', $recordId,
+        "elderly={$elderlyId} schedule=" . ($scheduleId ?? 'ad-hoc') . " wellbeing={$wellbeing}");
+    return ['record_id' => $recordId, 'schedule_id' => $scheduleId, 'alert_id' => $alertId];
+}

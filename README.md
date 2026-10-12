@@ -82,17 +82,19 @@ elderly-welfare-system/
 │   ├── caregivers.php        # Account list + suspend/reset ✅ Stage 4
 │   ├── caregiver_form.php    # Create/edit account ✅ Stage 4
 │   ├── assignments.php       # Assign/unassign/primary ✅ Stage 4
+│   ├── schedules.php         # Schedule list ✅ Stage 5
+│   ├── schedule_form.php     # Create/edit/cancel (shared w/ caregivers) ✅ Stage 5
 │   └── settings.php          # Grace / escalation defaults (Stage 6)
 ├── caregiver/                # Caregiver pages (role = caregiver)
 │   ├── dashboard.php         # Placeholder ✅ Stage 3 (full: Stages 5-6)
 │   ├── households.php        # My assigned households ✅ Stage 4
-│   ├── checkins.php
+│   ├── checkins.php          # Due/overdue/ad-hoc/history workspace ✅ Stage 5
 │   ├── alerts.php
 │   ├── followups.php
 │   └── visits.php
 ├── elderly/                  # Simple large-text interface (role = elderly/family)
-│   ├── profile.php           # (Stage 5)
-│   └── checkin.php           # Placeholder ✅ Stage 3 (full: Stage 5)
+│   ├── profile.php           # Own summary + schedules + history ✅ Stage 5
+│   └── checkin.php           # Big-button self check-in + help ✅ Stage 5
 ├── ai/
 │   └── risk_engine.php       # Explainable rule engine (Stage 7)
 ├── cron/
@@ -120,7 +122,8 @@ elderly-welfare-system/
 | **Stage 1** | Requirements & design (proposal, scope, requirements, architecture, DB design, ERD, use-case, monitoring rules) | ✅ Done |
 | **Stage 2** | Environment & database (XAMPP, `elderly_welfare.sql`, PDO connection) | ✅ Done |
 | **Stage 3** | Authentication & roles (login/logout, hashing, RBAC) | ✅ Done |
-| **Stage 4** | Household & caregiver management (profiles, accounts, assignments) | ✅ Done — run TC-4.01–4.21 on your XAMPP (see `docs/09`) |
+| **Stage 4** | Household & caregiver management (profiles, accounts, assignments) | ✅ Done |
+| **Stage 5** | Check-in management (schedules, submissions, history, overdue) | ✅ Done — run TC-5.01–5.17 on your XAMPP (see `docs/10`) |
 | Stage 3 | Authentication & roles (login/logout, hashing, RBAC) | ⏳ |
 | Stage 4 | Household & caregiver management | ⏳ |
 | Stage 5 | Check-in management | ⏳ |
@@ -149,6 +152,7 @@ All Stage 1 documents live in `docs/`:
 | `docs/07-stage2-environment-and-database.md` | **Stage 2 guide:** XAMPP install, SQL import, connection config, `test_db.php` test, troubleshooting |
 | `docs/08-stage3-authentication-and-roles.md` | **Stage 3 guide:** sessions, hashing, RBAC, CSRF, test cases TC-3.01–3.20, viva Q&A |
 | `docs/09-stage4-household-and-caregiver-management.md` | **Stage 4 guide:** profiles, accounts, assignments, test cases TC-4.01–4.21 |
+| `docs/10-stage5-checkin-management.md` | **Stage 5 guide:** schedules, submissions, history, overdue, test cases TC-5.01–5.17 |
 
 Start with `docs/01-proposal-scope.md` and read in order.
 
@@ -220,11 +224,13 @@ accounts — remove that box before any real deployment or final submission.
 
 ## 10. How to proceed
 
-1. On your XAMPP, log in as admin and work through **TC-4.01–TC-4.21** in
-   `docs/09-stage4-household-and-caregiver-management.md`, filling Actual/Pass.
-2. Run the cleanup SQL at the end of §B so later demos start from clean seed.
-3. Reply **"Approved — proceed to Stage 5"** (or paste any failure for help).
-4. Only then will Stage 5 (schedules, check-in submission, history) be built.
+1. On your XAMPP, work through **TC-5.01–TC-5.17** in
+   `docs/10-stage5-checkin-management.md` as admin, caregiver, and elderly,
+   filling Actual/Pass.
+2. Run the cleanup SQL at the end of §B (Stage 6 demos need overdue seed rows).
+3. Reply **"Approved — proceed to Stage 6"** (or paste any failure for help).
+4. Only then will Stage 6 (monitoring script, alerts, escalation, visits,
+   follow-ups) be built.
 
 ---
 
