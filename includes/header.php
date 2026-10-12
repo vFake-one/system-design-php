@@ -49,6 +49,8 @@ $homeUrl    = $rootPrefix . ($user ? role_home($user['role']) : 'index.php');
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>admin/caregivers.php">Caregivers</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>admin/assignments.php">Assignments</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>admin/settings.php">Settings</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>admin/reports.php">Reports</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>admin/audit.php">Audit</a></li>
                 <?php elseif ($user && $user['role'] === 'caregiver'): ?>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/dashboard.php">Dashboard</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/checkins.php">Check-ins</a></li>
@@ -57,11 +59,11 @@ $homeUrl    = $rootPrefix . ($user ? role_home($user['role']) : 'index.php');
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/visits.php">Visits</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/followups.php">Follow-ups</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/households.php">My households</a></li>
+                    <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>caregiver/reports.php">Reports</a></li>
                 <?php elseif ($user): ?>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>elderly/checkin.php">My check-ins</a></li>
                     <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>elderly/profile.php">My profile</a></li>
                 <?php endif; ?>
-                <?php /* Alerts, reports, ... links are added in later stages. */ ?>
             </ul>
             <ul class="navbar-nav">
                 <?php if ($user): ?>
@@ -69,6 +71,7 @@ $homeUrl    = $rootPrefix . ($user ? role_home($user['role']) : 'index.php');
                         <?= e($user['full_name']) ?>
                         <span class="badge bg-light text-dark"><?= e($user['role']) ?></span>
                     </li>
+                    <li class="nav-item"><a class="nav-link" href="<?= e($rootPrefix) ?>account.php">My account</a></li>
                     <li class="nav-item">
                         <?php /* Logout is a POST form (CSRF-protected), styled as a button. */ ?>
                         <form method="post" action="<?= e($rootPrefix) ?>logout.php" class="d-inline">

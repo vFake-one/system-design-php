@@ -72,10 +72,12 @@ elderly-welfare-system/
 │   ├── auth.php              # Session + role checks ✅ Stage 3
 │   ├── functions.php         # Escaper, redirect, flash, audit ✅ Stage 3
 │   ├── csrf.php              # CSRF tokens ✅ Stage 3
-│   ├── header.php            # Shared layout top + nav ✅ Stage 3
-│   └── footer.php            # Shared layout bottom ✅ Stage 3
+│   ├── header.php            # Shared layout top + nav ✅ Stage 3 (Stage 8 links)
+│   ├── footer.php            # Shared layout bottom ✅ Stage 3 (charts hook ✅ Stage 8)
+│   ├── reports_lib.php       # Dashboard/report/CSV queries ✅ Stage 8
+│   └── reports_page.php      # Shared reports renderer ✅ Stage 8
 ├── admin/                    # Admin-only pages (role = admin)
-│   ├── dashboard.php         # Placeholder ✅ Stage 3 (full: Stage 8)
+│   ├── dashboard.php         # Live tiles + charts ✅ Stage 8
 │   ├── elderly.php           # Household list ✅ Stage 4
 │   ├── elderly_form.php      # Register/edit household ✅ Stage 4
 │   ├── elderly_view.php      # Profile (shared w/ scoped caregivers) ✅ Stage 4
@@ -84,15 +86,18 @@ elderly-welfare-system/
 │   ├── assignments.php       # Assign/unassign/primary ✅ Stage 4
 │   ├── schedules.php         # Schedule list ✅ Stage 5
 │   ├── schedule_form.php     # Create/edit/cancel (shared w/ caregivers) ✅ Stage 5
-│   └── settings.php          # Thresholds + manual monitor run ✅ Stage 6
+│   ├── settings.php          # Thresholds + manual monitor run ✅ Stage 6
+│   ├── reports.php           # System-wide reports + CSV ✅ Stage 8
+│   └── audit.php             # Read-only audit viewer ✅ Stage 8
 ├── caregiver/                # Caregiver pages (role = caregiver)
-│   ├── dashboard.php         # Placeholder ✅ Stage 3 (full: Stages 5-6)
+│   ├── dashboard.php         # My-households tiles + charts ✅ Stage 8
 │   ├── households.php        # My assigned households ✅ Stage 4
 │   ├── checkins.php          # Due/overdue/ad-hoc/history workspace ✅ Stage 5
 │   ├── alerts.php            # Alert worklist (shared w/ admin) ✅ Stage 6
 │   ├── review.php            # Prioritized review queue (shared) ✅ Stage 7
 │   ├── followups.php         # Follow-up action log ✅ Stage 6
-│   └── visits.php            # Visit log ✅ Stage 6
+│   ├── visits.php            # Visit log ✅ Stage 6
+│   └── reports.php           # My-households reports + CSV ✅ Stage 8
 ├── elderly/                  # Simple large-text interface (role = elderly/family)
 │   ├── profile.php           # Own summary + schedules + history ✅ Stage 5
 │   └── checkin.php           # Big-button self check-in + help ✅ Stage 5
@@ -106,13 +111,14 @@ elderly-welfare-system/
 │   └── elderly_welfare.sql   # Full MySQL script ✅ Stage 2
 ├── docs/                     # Stage-by-stage academic documentation
 ├── index.php / login.php / logout.php   # ✅ Stage 3 (`test_db.php` removed after use)
+├── account.php               # My account + password change ✅ Stage 8
 └── README.md
 ```
 
 > Any improvement to this structure will be explained when it is made.
 > Checkboxes (✅ Stage N) mark implemented files; unmarked files are planned
-> for their listed stage. Only Bootstrap's own files sit in `assets/` vendor
-> copies; everything else is project code.
+> for their listed stage. Only Bootstrap's and Chart.js's own files sit in
+> `assets/` vendor copies; everything else is project code.
 
 ---
 
@@ -126,13 +132,13 @@ elderly-welfare-system/
 | **Stage 4** | Household & caregiver management (profiles, accounts, assignments) | ✅ Done |
 | **Stage 5** | Check-in management (schedules, submissions, history, overdue) | ✅ Done |
 | **Stage 6** | Alerts & escalation (monitor, acknowledge, visits, follow-ups) | ✅ Done |
-| **Stage 7** | AI-assisted monitoring (full rule engine, review queue) | ✅ Done — run TC-7.01–7.12 on your XAMPP (see `docs/12`) |
+| **Stage 7** | AI-assisted monitoring (full rule engine, review queue) | ✅ Done |
 | Stage 3 | Authentication & roles (login/logout, hashing, RBAC) | ⏳ |
 | Stage 4 | Household & caregiver management | ⏳ |
 | Stage 5 | Check-in management | ⏳ |
 | Stage 6 | Alerts & escalation | ⏳ |
 | Stage 7 | AI-assisted (rule-based) monitoring | ⏳ |
-| Stage 8 | Dashboard & reporting | ⏳ |
+| **Stage 8** | Dashboard & reporting (live tiles, Chart.js, reports + CSV, audit, account) | ✅ Done — run TC-8.01–8.15 on your XAMPP (see `docs/13`) |
 | Stage 9 | Testing & documentation | ⏳ |
 
 **Rule:** we do not start the next stage until the current stage's
@@ -158,6 +164,7 @@ All Stage 1 documents live in `docs/`:
 | `docs/10-stage5-checkin-management.md` | **Stage 5 guide:** schedules, submissions, history, overdue, test cases TC-5.01–5.17 |
 | `docs/11-stage6-alerts-and-escalation.md` | **Stage 6 guide:** monitor, cron setup, alert lifecycle, visits/follow-ups, TC-6.01–6.20 |
 | `docs/12-stage7-ai-assisted-monitoring.md` | **Stage 7 guide:** full engine, review queue, scenario fixtures, ML appendix, TC-7.01–7.12 |
+| `docs/13-stage8-dashboard-and-reporting.md` | **Stage 8 guide:** tile definitions, charts, reports + CSV, audit, account, TC-8.01–8.15 |
 
 Start with `docs/01-proposal-scope.md` and read in order.
 
@@ -229,13 +236,13 @@ accounts — remove that box before any real deployment or final submission.
 
 ## 10. How to proceed
 
-1. On your XAMPP, work through **TC-7.01–TC-7.12** in
-   `docs/12-stage7-ai-assisted-monitoring.md` (fixtures → monitor → verify
-   15/50/100), then run the §C.5 cleanup.
-2. Keep a screenshot of the review queue + one alert's scoring evidence.
-3. Reply **"Approved — proceed to Stage 8"** (or paste any failure for help).
-4. Only then will Stage 8 (dashboards, Chart.js reports, audit viewer,
-   account page) be built.
+1. On your XAMPP, work through **TC-8.01–TC-8.15** in
+   `docs/13-stage8-dashboard-and-reporting.md` (tiles → SQL cross-checks →
+   reports → CSV → audit → password change).
+2. Keep a screenshot of each dashboard + one CSV opened in Excel.
+3. Reply **"Approved — proceed to Stage 9"** (or paste any failure for help).
+4. Only then will Stage 9 (full test plan, install guide, user manual,
+   academic report) be assembled.
 
 ---
 
