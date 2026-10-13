@@ -1,0 +1,26 @@
+/* File: assets/css/app.css - small project styles on top of Bootstrap. */
+
+/* Elderly/family pages: large readable text + big tap targets (NFR-03). */
+.elderly-zone {
+    font-size: 1.25rem;
+    line-height: 1.7;
+}
+.elderly-zone .btn {
+    font-size: 1.35rem;
+    padding: 0.9rem 1.4rem;
+    min-height: 56px;
+}
+.elderly-zone .form-control {
+    font-size: 1.25rem;
+    padding: 0.8rem 1rem;
+    min-height: 56px;
+}
+
+/* Priority badges reuse Bootstrap colours with explicit names. */
+.priority-routine { background-color: #198754; }   /* green  */
+.priority-attention { background-color: #ffc107; color: #000; } /* amber */
+.priority-urgent { background-color: #dc3545; }    /* red    */
+
+/* Keep the footer at the bottom on short pages. */
+body { display: flex; flex-direction: column; min-height: 100vh; }
+main { flex: 1; }

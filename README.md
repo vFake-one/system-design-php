@@ -1,1 +1,259 @@
-# system-design-php
+# AI-Powered Elderly Household Welfare Check-In System
+
+> **Academic prototype** — Year 2, Semester 1 Computer Science project.
+> A web-based system that helps caregivers and welfare coordinators monitor
+> elderly people living alone, detect missed check-ins, prioritize cases for
+> review, and record follow-up actions.
+>
+> ⚠️ **Important disclaimer:** this is a teaching prototype. It is **not**
+> a substitute for emergency services, continuous medical monitoring, or
+> professional clinical judgement. A missed check-in does **not** prove danger,
+> and a completed check-in does **not** guarantee safety.
+
+---
+
+## 1. What problem does this solve?
+
+Older people who live alone may experience illness, falls, or emergencies
+without anyone noticing quickly. Traditional monitoring (physical visits,
+phone calls) fails when:
+
+- caregivers are unavailable or visits are missed,
+- records are kept on paper and get lost,
+- nobody notices a missed visit until much later,
+- an elderly person cannot call for help.
+
+This system provides **one central place** to:
+
+1. Register elderly household profiles.
+2. Assign caregivers.
+3. Schedule expected welfare check-ins.
+4. Record completed check-ins (by the elderly person, a family member,
+   or a caregiver on their behalf).
+5. **Automatically** detect missed / overdue check-ins.
+6. Generate **alerts**, notify caregivers in-app, and **escalate**
+   unacknowledged alerts to a secondary contact.
+7. Apply a **transparent, rule-based risk-prioritization engine**
+   (Routine / Attention required / Urgent review) so caregivers know
+   what to review first.
+8. Record visits, follow-up actions, and outcomes.
+9. Show dashboards, charts, and reports from real database records.
+10. Keep an audit trail and protect personal data.
+
+---
+
+## 2. Technology stack (as specified)
+
+| Layer | Technology |
+|---|---|
+| Frontend structure | HTML5 |
+| Styling | CSS3 + Bootstrap 5 (responsive, mobile-friendly) |
+| Client interaction | JavaScript (validation, UX) + Chart.js (dashboard charts) |
+| Backend | PHP (current XAMPP PHP 8.x), PHP sessions for auth |
+| Database access | PDO with prepared statements (SQL-injection protection) |
+| Database | MySQL / MariaDB (InnoDB), managed via phpMyAdmin |
+| Dev environment | XAMPP (Apache + MySQL), VS Code, modern browser |
+| Monitoring | PHP CLI script (`cron/monitor_checkins.php`), cron-compatible, + manual admin run button |
+| AI-assisted monitoring | **Stage 1–7:** explainable PHP rule engine (`ai/risk_engine.php`). **Optional extension:** Python + scikit-learn micro-API (only if a suitable dataset and time allow; synthetic data only, never claimed as clinically validated) |
+
+**Primary stack is PHP + MySQL.** Flask / Django / SQLite are **not**
+used as the main backend or database.
+
+---
+
+## 3. Project structure
+
+```text
+elderly-welfare-system/
+├── config/
+│   ├── database.php          # PDO connection ✅ Stage 2 (XAMPP defaults; see .example template)
+│   └── database.example.php  # Safe template copy
+├── includes/
+│   ├── auth.php              # Session + role checks ✅ Stage 3
+│   ├── functions.php         # Escaper, redirect, flash, audit ✅ Stage 3
+│   ├── csrf.php              # CSRF tokens ✅ Stage 3
+│   ├── header.php            # Shared layout top + nav ✅ Stage 3 (Stage 8 links)
+│   ├── footer.php            # Shared layout bottom ✅ Stage 3 (charts hook ✅ Stage 8)
+│   ├── reports_lib.php       # Dashboard/report/CSV queries ✅ Stage 8
+│   └── reports_page.php      # Shared reports renderer ✅ Stage 8
+├── admin/                    # Admin-only pages (role = admin)
+│   ├── dashboard.php         # Live tiles + charts ✅ Stage 8
+│   ├── elderly.php           # Household list ✅ Stage 4
+│   ├── elderly_form.php      # Register/edit household ✅ Stage 4
+│   ├── elderly_view.php      # Profile (shared w/ scoped caregivers) ✅ Stage 4
+│   ├── caregivers.php        # Account list + suspend/reset ✅ Stage 4
+│   ├── caregiver_form.php    # Create/edit account ✅ Stage 4
+│   ├── assignments.php       # Assign/unassign/primary ✅ Stage 4
+│   ├── schedules.php         # Schedule list ✅ Stage 5
+│   ├── schedule_form.php     # Create/edit/cancel (shared w/ caregivers) ✅ Stage 5
+│   ├── settings.php          # Thresholds + manual monitor run ✅ Stage 6
+│   ├── reports.php           # System-wide reports + CSV ✅ Stage 8
+│   └── audit.php             # Read-only audit viewer ✅ Stage 8
+├── caregiver/                # Caregiver pages (role = caregiver)
+│   ├── dashboard.php         # My-households tiles + charts ✅ Stage 8
+│   ├── households.php        # My assigned households ✅ Stage 4
+│   ├── checkins.php          # Due/overdue/ad-hoc/history workspace ✅ Stage 5
+│   ├── alerts.php            # Alert worklist (shared w/ admin) ✅ Stage 6
+│   ├── review.php            # Prioritized review queue (shared) ✅ Stage 7
+│   ├── followups.php         # Follow-up action log ✅ Stage 6
+│   ├── visits.php            # Visit log ✅ Stage 6
+│   └── reports.php           # My-households reports + CSV ✅ Stage 8
+├── elderly/                  # Simple large-text interface (role = elderly/family)
+│   ├── profile.php           # Own summary + schedules + history ✅ Stage 5
+│   └── checkin.php           # Big-button self check-in + help ✅ Stage 5
+├── ai/
+│   └── risk_engine.php       # Full 8-input engine v1 ✅ Stage 7
+├── cron/
+│   └── monitor_checkins.php  # 3-pass engine (CLI + manual) ✅ Stage 6
+├── assets/
+│   ├── css/ js/ images/
+├── database/
+│   └── elderly_welfare.sql   # Full MySQL script ✅ Stage 2
+├── docs/                     # Stage-by-stage academic documentation
+├── index.php / login.php / logout.php   # ✅ Stage 3 (`test_db.php` removed after use)
+├── account.php               # My account + password change ✅ Stage 8
+└── README.md
+```
+
+> Any improvement to this structure will be explained when it is made.
+> Checkboxes (✅ Stage N) mark implemented files; unmarked files are planned
+> for their listed stage. Only Bootstrap's and Chart.js's own files sit in
+> `assets/` vendor copies; everything else is project code.
+
+---
+
+## 4. Development stages
+
+| Stage | Focus | Status |
+|---|---|---|
+| **Stage 1** | Requirements & design (proposal, scope, requirements, architecture, DB design, ERD, use-case, monitoring rules) | ✅ Done |
+| **Stage 2** | Environment & database (XAMPP, `elderly_welfare.sql`, PDO connection) | ✅ Done |
+| **Stage 3** | Authentication & roles (login/logout, hashing, RBAC) | ✅ Done |
+| **Stage 4** | Household & caregiver management (profiles, accounts, assignments) | ✅ Done |
+| **Stage 5** | Check-in management (schedules, submissions, history, overdue) | ✅ Done |
+| **Stage 6** | Alerts & escalation (monitor, acknowledge, visits, follow-ups) | ✅ Done |
+| **Stage 7** | AI-assisted monitoring (full rule engine, review queue) | ✅ Done |
+| Stage 3 | Authentication & roles (login/logout, hashing, RBAC) | ⏳ |
+| Stage 4 | Household & caregiver management | ⏳ |
+| Stage 5 | Check-in management | ⏳ |
+| Stage 6 | Alerts & escalation | ⏳ |
+| Stage 7 | AI-assisted (rule-based) monitoring | ⏳ |
+| **Stage 8** | Dashboard & reporting (live tiles, Chart.js, reports + CSV, audit, account) | ✅ Done |
+| **Stage 9** | Testing & documentation (master test plan, install guide, user manual, report guide) | ✅ Done — complete `docs/14 §5` sign-off, then submit |
+
+**Rule:** we do not start the next stage until the current stage's
+deliverables are complete and understood.
+
+---
+
+## 5. Stage 1 deliverables (where to read them)
+
+All Stage 1 documents live in `docs/`:
+
+| File | Contents |
+|---|---|
+| `docs/01-proposal-scope.md` | Refined proposal, problem statement, objectives, scope, limitations, justification |
+| `docs/02-requirements.md` | Functional & non-functional requirements, roles & permissions matrix |
+| `docs/03-architecture.md` | System architecture, request flows, use-case diagram, DFD Level 0, folder rationale, security architecture |
+| `docs/04-database-design.md` | Normalized table design, keys, constraints, indexes, relationships, ERD (Mermaid) |
+| `docs/05-monitoring-and-risk-rules.md` | How missed-check-in detection and the explainable risk engine work, with worked examples |
+| `docs/06-stage1-checklist.md` | What is done / assumed / left for you to verify, and how to approve Stage 2 |
+| `docs/07-stage2-environment-and-database.md` | **Stage 2 guide:** XAMPP install, SQL import, connection config, `test_db.php` test, troubleshooting |
+| `docs/08-stage3-authentication-and-roles.md` | **Stage 3 guide:** sessions, hashing, RBAC, CSRF, test cases TC-3.01–3.20, viva Q&A |
+| `docs/09-stage4-household-and-caregiver-management.md` | **Stage 4 guide:** profiles, accounts, assignments, test cases TC-4.01–4.21 |
+| `docs/10-stage5-checkin-management.md` | **Stage 5 guide:** schedules, submissions, history, overdue, test cases TC-5.01–5.17 |
+| `docs/11-stage6-alerts-and-escalation.md` | **Stage 6 guide:** monitor, cron setup, alert lifecycle, visits/follow-ups, TC-6.01–6.20 |
+| `docs/12-stage7-ai-assisted-monitoring.md` | **Stage 7 guide:** full engine, review queue, scenario fixtures, ML appendix, TC-7.01–7.12 |
+| `docs/13-stage8-dashboard-and-reporting.md` | **Stage 8 guide:** tile definitions, charts, reports + CSV, audit, account, TC-8.01–8.15 |
+| `docs/14-stage9-test-plan.md` | **Stage 9:** master test plan, regression map, TC-9.01–9.12, static audit, defect log, sign-off |
+| `docs/15-installation-guide.md` | XAMPP install, DB import, monitor setup, troubleshooting |
+| `docs/16-user-manual.md` | Per-role walkthroughs + everyday-flows cheat sheet |
+| `docs/17-academic-report-guide.md` | Chapter map, screenshots list, viva Q&A, submission checklist |
+
+Start with `docs/01-proposal-scope.md` and read in order.
+
+---
+
+## 6. Roles (summary)
+
+| Role | Who | Key permissions |
+|---|---|---|
+| **Administrator** | System / welfare office admin | Dashboards, elderly CRUD, caregiver accounts, assignments, schedules, escalation settings, alerts, reports, audit logs, user management |
+| **Caregiver / Welfare Coordinator** | Assigned carer | Own assigned elderly only: schedules, check-in recording, alerts acknowledge/resolve, visits, follow-ups, history, reports |
+| **Elderly / Authorized family member** | Older person or approved family | Own profile only: view schedule, submit check-in, request assistance, view own history. Large-text simple UI |
+
+Full permission matrix: `docs/02-requirements.md`.
+
+---
+
+## 7. Demo accounts (local testing only — change these passwords)
+
+Seeded by `database/elderly_welfare.sql` — **log in with them from Stage 3**:
+
+- `admin@example.local` / `Admin123!` (administrator)
+- `ruth.caregiver@example.local` / `Care123!` (caregiver)
+- `david.caregiver@example.local` / `Care123!` (caregiver)
+- `mary.elderly@example.local` / `Elder123!` (elderly/family)
+- `peter.family@example.local` / `Elder123!` (elderly/family)
+
+Passwords are stored as bcrypt hashes (cost 10). Never commit real passwords
+or contact details. The login page shows a reminder box with the first three
+accounts — remove that box before any real deployment or final submission.
+
+---
+
+## 8. What is / is not in scope
+
+**Will be implemented (core):**
+
+- Secure login, sessions, role-based access, CSRF protection, audit logs.
+- Elderly profiles, caregiver accounts, assignments.
+- Check-in schedules, submissions, history, overdue calculation.
+- Automatic missed-check-in detection (cron-compatible PHP script + manual run).
+- Alert lifecycle: open → acknowledged → escalated / resolved, with no duplicates.
+- Escalation to an authorized secondary contact after a configurable delay.
+- Transparent PHP risk-prioritization rules with recorded reasons.
+- Visits, follow-up actions, dashboards, Chart.js reports from live data.
+
+**Optional extensions (only if time allows, clearly labelled):**
+
+- Email notifications (PHP `mail()` / SMTP).
+- Python + scikit-learn risk API behind the PHP app (synthetic data only).
+
+**Explicitly future work (not in this project):**
+
+- SMS gateway, mobile apps, real-time medical sensors, clinical diagnosis,
+  integration with hospital systems.
+
+---
+
+## 9. Academic integrity notes
+
+- All demonstration data is **synthetic** (fictional names, addresses, phones).
+- No research findings, interviews, references, or test results are invented.
+  Placeholders you must fill in yourself are marked with **`[TODO-STUDENT]`**.
+- Test results are only marked pass/fail after you actually run them (Stage 9).
+- The "AI" in this project is an **explainable rule engine** unless the
+  optional ML extension is built — it is never described as a medical device.
+
+---
+
+## 10. How to proceed
+
+1. Follow `docs/15-installation-guide.md` verbatim on a fresh database.
+2. Work through **TC-9.01–TC-9.12** + the §1 smoke rows in
+   `docs/14-stage9-test-plan.md`; log any failure in the §4 defect log
+   (paste it here for a fix).
+3. Fill the **§5 sign-off table**; capture the `docs/17` screenshots.
+4. Assemble and submit your report per `docs/17-academic-report-guide.md`.
+
+---
+
+## 11. Repository hygiene
+
+- Database credentials live in `config/database.php` (Stage 2) and are
+  **never committed with real secrets** — a `config/database.example.php`
+  template will be provided.
+- `database/elderly_welfare.sql` contains schema + synthetic seed data only.
+- Time zone is configured once (application + MySQL session) — see
+  `docs/04-database-design.md`.

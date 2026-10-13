@@ -1,0 +1,9 @@
+# OS / editor noise - never commit these
+.DS_Store
+Thumbs.db
+*.swp
+*.bak
+
+# Local machine overrides (if you ever add one) stay out of git.
+# The committed config/database.php holds XAMPP local defaults only.
+config/db_local.php
