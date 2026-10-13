@@ -138,8 +138,8 @@ elderly-welfare-system/
 | Stage 5 | Check-in management | ⏳ |
 | Stage 6 | Alerts & escalation | ⏳ |
 | Stage 7 | AI-assisted (rule-based) monitoring | ⏳ |
-| **Stage 8** | Dashboard & reporting (live tiles, Chart.js, reports + CSV, audit, account) | ✅ Done — run TC-8.01–8.15 on your XAMPP (see `docs/13`) |
-| Stage 9 | Testing & documentation | ⏳ |
+| **Stage 8** | Dashboard & reporting (live tiles, Chart.js, reports + CSV, audit, account) | ✅ Done |
+| **Stage 9** | Testing & documentation (master test plan, install guide, user manual, report guide) | ✅ Done — complete `docs/14 §5` sign-off, then submit |
 
 **Rule:** we do not start the next stage until the current stage's
 deliverables are complete and understood.
@@ -165,6 +165,10 @@ All Stage 1 documents live in `docs/`:
 | `docs/11-stage6-alerts-and-escalation.md` | **Stage 6 guide:** monitor, cron setup, alert lifecycle, visits/follow-ups, TC-6.01–6.20 |
 | `docs/12-stage7-ai-assisted-monitoring.md` | **Stage 7 guide:** full engine, review queue, scenario fixtures, ML appendix, TC-7.01–7.12 |
 | `docs/13-stage8-dashboard-and-reporting.md` | **Stage 8 guide:** tile definitions, charts, reports + CSV, audit, account, TC-8.01–8.15 |
+| `docs/14-stage9-test-plan.md` | **Stage 9:** master test plan, regression map, TC-9.01–9.12, static audit, defect log, sign-off |
+| `docs/15-installation-guide.md` | XAMPP install, DB import, monitor setup, troubleshooting |
+| `docs/16-user-manual.md` | Per-role walkthroughs + everyday-flows cheat sheet |
+| `docs/17-academic-report-guide.md` | Chapter map, screenshots list, viva Q&A, submission checklist |
 
 Start with `docs/01-proposal-scope.md` and read in order.
 
@@ -236,13 +240,12 @@ accounts — remove that box before any real deployment or final submission.
 
 ## 10. How to proceed
 
-1. On your XAMPP, work through **TC-8.01–TC-8.15** in
-   `docs/13-stage8-dashboard-and-reporting.md` (tiles → SQL cross-checks →
-   reports → CSV → audit → password change).
-2. Keep a screenshot of each dashboard + one CSV opened in Excel.
-3. Reply **"Approved — proceed to Stage 9"** (or paste any failure for help).
-4. Only then will Stage 9 (full test plan, install guide, user manual,
-   academic report) be assembled.
+1. Follow `docs/15-installation-guide.md` verbatim on a fresh database.
+2. Work through **TC-9.01–TC-9.12** + the §1 smoke rows in
+   `docs/14-stage9-test-plan.md`; log any failure in the §4 defect log
+   (paste it here for a fix).
+3. Fill the **§5 sign-off table**; capture the `docs/17` screenshots.
+4. Assemble and submit your report per `docs/17-academic-report-guide.md`.
 
 ---
 
