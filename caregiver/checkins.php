@@ -130,7 +130,7 @@ $hStmt = db()->prepare(
      LEFT JOIN checkin_schedules cs ON cs.id = cr.schedule_id
      LEFT JOIN users u ON u.id = cr.submitted_by
      WHERE {$hWhere}
-     ORDER BY cr.checkin_at DESC LIMIT :limit OFFSET :offset"
+     ORDER BY cr.checkin_at DESC LIMIT ? OFFSET ?"
 );
 foreach ($hArgs as $i => $v) {
     $hStmt->bindValue($i + 1, $v, PDO::PARAM_INT);

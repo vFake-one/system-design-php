@@ -69,7 +69,7 @@ function audit(string $action, ?string $entityType = null, int|string|null $enti
 {
     $stmt = db()->prepare(
         'INSERT INTO audit_logs (user_id, action, entity_type, entity_id, details, ip_address)
-         VALUES (:user_id, :action, :entity_type, :entity_id, :details, :ip)'
+         VALUES (:user_id, :action, :entity_type, :entity_id, :details, :ip_address)'
     );
     $stmt->execute([
         'user_id'     => $_SESSION['user_id'] ?? null, // null = system/cron action

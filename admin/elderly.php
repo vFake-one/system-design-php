@@ -43,7 +43,7 @@ $page = max(1, (int) ($_GET['page'] ?? 1));
 $where  = [];
 $params = [];
 if ($q !== '') {
-    $where[]         = '(ep.full_name LIKE :q OR ep.phone LIKE :q)';
+    $where[]         = '(ep.full_name LIKE :q1 OR ep.phone LIKE :q2)';
     $params['q']     = '%' . $q . '%';
 }
 if ($status === 'open') {

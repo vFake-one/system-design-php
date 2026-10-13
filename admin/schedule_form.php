@@ -33,13 +33,13 @@ if ($isAdmin) {
     )->fetchAll();
 } else {
     $stmt = db()->prepare(
-        "SELECT ep.id, ep.full_name, :cid AS primary_id
+        "SELECT ep.id, ep.full_name, :cid1 AS primary_id
          FROM caregiver_assignments ca
          JOIN elderly_profiles ep ON ep.id = ca.elderly_id
          WHERE ca.caregiver_id = :cid AND ca.status = 'active' AND ep.status = 'active'
          ORDER BY ep.full_name ASC"
     );
-    $stmt->execute(['cid' => $user['id']]);
+    $stmt->execute(['cid2' => $user['id']]);
     $households = $stmt->fetchAll();
     $caregivers = [['id' => $user['id'], 'full_name' => $user['full_name']]];
 }

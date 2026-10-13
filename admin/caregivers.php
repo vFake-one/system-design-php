@@ -67,9 +67,9 @@ if ($role !== 'all') {
     $params['role']  = $role;
 }
 if ($q !== '') {
-    $where[]     = '(u.full_name LIKE :q OR u.email LIKE :q)';
-    $params['q'] = '%' . $q . '%';
-}
+    $where[]     = '(u.full_name LIKE :q1 OR u.email LIKE :q2)';
+    $params['q1'] = $params['q2'];
+
 $whereSql = $where ? 'WHERE ' . implode(' AND ', $where) : '';
 
 $countStmt = db()->prepare("SELECT COUNT(*) FROM users u {$whereSql}");
