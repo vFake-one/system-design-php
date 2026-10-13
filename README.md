@@ -1,6 +1,6 @@
 # AI-Powered Elderly Household Welfare Check-In System
 
-> **Academic prototype** — Year 2, Semester 1 Computer Science project.
+> **Academic prototype** — Computer Science project.
 > A web-based system that helps caregivers and welfare coordinators monitor
 > elderly people living alone, detect missed check-ins, prioritize cases for
 > review, and record follow-up actions.
